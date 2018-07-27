@@ -1,5 +1,6 @@
 package com.wzb.httpserver;
 
+import javax.sound.sampled.Port;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -8,6 +9,7 @@ import java.net.Socket;
  * 创建服务器并启动
  */
 public class Server {
+    private boolean isShutdown = false;
     private ServerSocket server;
     public static void main(String[] args) {
         Server server = new Server();
@@ -18,30 +20,28 @@ public class Server {
      * 启动方法
      */
     public void start(){
+        start(9988);
+    }
+    //指定端口的启动方法
+    public void start(int port){
         try {
-            server = new ServerSocket(9988);
+            server = new ServerSocket(port);
             this.receive();
         } catch (IOException e) {
-            e.printStackTrace();
+            stop();
         }
 
     }
-
     /**
      * 接收客户端
      */
     private void receive(){
         try {
-            Socket client = server.accept();
-            Request req=new Request(client.getInputStream());
-
-            Response rep = new Response(client.getOutputStream());
-            rep.println("<html><head><title>这是一个响应</title>");
-            rep.println("</head><body>");
-            rep.println("欢迎：").println(req.getParameter("name")).println("回来");
-            rep.println("</body></html>");
-            rep.pushToClient(200);
+            while (!isShutdown){
+                new Thread(new Dispatcher(server.accept())).start();
+            }
         } catch (IOException e) {
+            stop();
         }
     }
 
@@ -49,7 +49,12 @@ public class Server {
      * 停止服务器
      */
     public void stop(){
-
+        isShutdown = true;
+        try {
+            server.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
