@@ -33,15 +33,13 @@ public class Server {
     private void receive(){
         try {
             Socket client = server.accept();
-            byte[] data = new byte[20480];
-            int len = client.getInputStream().read(data);
-            //接收客户端的请求信息
-            String requestInfo = new String(data,0,len).trim();
-            System.out.println(requestInfo);
+            Request req=new Request(client.getInputStream());
 
             Response rep = new Response(client.getOutputStream());
             rep.println("<html><head><title>这是一个响应</title>");
-            rep.println("</head><body>Hello WZB!</body></html>");
+            rep.println("</head><body>");
+            rep.println("欢迎：").println(req.getParameter("name")).println("回来");
+            rep.println("</body></html>");
             rep.pushToClient(200);
         } catch (IOException e) {
         }

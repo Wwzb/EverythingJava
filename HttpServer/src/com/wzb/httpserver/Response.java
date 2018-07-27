@@ -76,7 +76,7 @@ public class Response {
         //2)响应头(response head)
         headInfo.append("Server:WZB Server/0.0.1").append(CRLF);
         headInfo.append("Date:").append(new Date()).append(CRLF);
-        headInfo.append("Content-type:text/html;charset=GBK").append(CRLF);
+        headInfo.append("Content-type:text/html;charset=utf-8").append(CRLF);
         //正文长度
         headInfo.append("Content-Length:").append(len).append(CRLF);
         headInfo.append(CRLF);//分隔符
