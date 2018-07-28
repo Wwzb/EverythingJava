@@ -4,3 +4,4 @@ HTML
 HTTP(request / response)
 封装response
 多线程
+封装分发器
