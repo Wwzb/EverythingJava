@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<list>
+	<clothes id="A0001">
+		<brand>VEROMODA</brand>
+		<style>连衣裙</style>
+		<color>白色</color>
+		<size>S</size>
+		<num>4</num>
+		<price>274.0</price>
+		<description>夏季五分袖连衣裙</description>
+	</clothes>
+</list>
