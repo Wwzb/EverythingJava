@@ -11,8 +11,10 @@ public class OrderIO {
     private static final String ORDER_FILE = "order.obj";
     public  void add(Order order) throws BusinessException{
         orders.add(order);
+        writeOrders();
     }
     public List<Order> list() throws BusinessException{
+        readOrders();
         return orders;
     }
     public Order findByOrderId(int orderId)throws BusinessException{

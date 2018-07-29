@@ -20,6 +20,9 @@ public class HomeClass extends BaseClass {
     public void show(){
         showProducts();
         println("welcome:"+currUser.getUsername());
+        menu();
+    }
+    private void menu(){
         boolean flag = true;
         while (flag){
             println(getString("home.function"));
@@ -27,7 +30,7 @@ public class HomeClass extends BaseClass {
             String select = input.nextLine();
             switch (select){
                 case "1"://1、查询全部订单
-                    findList();
+                    findOrderList();
                     flag=false;
                     break;
                 case "2"://2、查找订单
@@ -39,7 +42,7 @@ public class HomeClass extends BaseClass {
                         buyProducts();
                         flag=false;
                     }catch (BusinessException e){
-                            println(e.getMessage());
+                        println(e.getMessage());
                     }
                     break;
 
@@ -53,7 +56,6 @@ public class HomeClass extends BaseClass {
             }
         }
     }
-
     private void buyProducts() throws BusinessException {
         //生成订单
         boolean flag = true;
@@ -72,6 +74,7 @@ public class HomeClass extends BaseClass {
                 throw new BusinessException("product.num.error");
             }
             //一条订单明细
+            clothes.setNum(clothes.getNum()-num);//减去库存
             orderItem.setClothes(clothes);
             orderItem.setShoppingNum(num);
             orderItem.setSum(clothes.getPrice()*num);
@@ -86,6 +89,9 @@ public class HomeClass extends BaseClass {
                     break;
                 case "2":
                     flag=false;
+                break;
+                default:
+                    flag=false;
                     break;
             }
         }
@@ -94,14 +100,58 @@ public class HomeClass extends BaseClass {
         order.setSum(sum);
         order.setOrderId(orderService.list().size()+1);
         orderService.buyProduct(order);
+        clothesService.update();
+        show();
     }
 
     private void findOrderById() {
+        println(getString("product.order.input.oid"));
+        String oid = input.nextLine();
+        Order order = orderService.findById(Integer.parseInt(oid));
+        if(order!=null){
+            showOrder(order);
+        }else {
+            println(getString("product.order.error"));
+        }
+        menu();
     }
 
-    private void findList() {
+    private void findOrderList() {
+        List<Order> list = orderService.list();
+        for(Order o:list){
+            showOrder(o);
+        }
+        menu();
     }
-
+    private void showOrder(Order o){
+        print(getString("product.order.oid")+o.getOrderId());
+        print("\t"+getString("product.order.createDate")+o.getCreateDate());
+        println("\t"+getString("product.order.sum")+o.getSum());
+        ConsoleTable t = new ConsoleTable(9, true);
+        t.appendRow();
+        t.appendColum("itemId")
+                .appendColum("brand")
+                .appendColum("style")
+                .appendColum("color")
+                .appendColum("size")
+                .appendColum("price")
+                .appendColum("description")
+                .appendColum("shoppingNum")
+                .appendColum("sum");
+        for(OrderItem item :o.getOrderItemList()) {
+            t.appendRow();
+            t.appendColum(item.getItemId())
+                    .appendColum(item.getClothes().getBrand())
+                    .appendColum(item.getClothes().getStyle())
+                    .appendColum(item.getClothes().getColor())
+                    .appendColum(item.getClothes().getSize())
+                    .appendColum(item.getClothes().getPrice())
+                    .appendColum(item.getClothes().getDescription())
+                    .appendColum(item.getSum())
+                    .appendColum(item.getSum());
+        }
+        println(t.toString());
+    }
     public void showProducts(){
         List<Clothes> list = clothesService.list();
         ConsoleTable t = new ConsoleTable(8, true);
@@ -116,7 +166,7 @@ public class HomeClass extends BaseClass {
                 .appendColum("description");
         for(Clothes c:list){
             t.appendRow();
-            t.appendColum("id")
+            t.appendColum(c.getId())
                     .appendColum(c.getBrand())
                     .appendColum(c.getStyle())
                     .appendColum(c.getColor())

@@ -4,7 +4,7 @@ import com.wzb.bean.Clothes;
 import com.wzb.service.ClothesService;
 import com.wzb.utils.BusinessException;
 import com.wzb.utils.ClothesIO;
-import com.wzb.utils.ProductsXmlUtils;
+
 
 import java.util.List;
 
@@ -18,5 +18,8 @@ public class ClothesServiceImpl implements ClothesService {
     @Override
     public Clothes findById(String  cid) throws BusinessException {
         return clothesIO.findById(cid);
+    }
+    public void update() throws BusinessException{
+        clothesIO.update();
     }
 }

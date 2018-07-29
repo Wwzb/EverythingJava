@@ -21,4 +21,7 @@ public class ClothesIO {
         }
         return list;
     }
+    public void update()throws BusinessException{
+        ProductsXmlUtils.writeProductToXml(list);
+    }
 }
