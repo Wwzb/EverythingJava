@@ -1,13 +1,17 @@
 package com.wzb.ui;
 
 import com.wzb.bean.Clothes;
+import com.wzb.bean.OrderItem;
 import com.wzb.service.ClothesService;
+import com.wzb.service.OrderService;
 import com.wzb.service.impl.ClothesServiceImpl;
+import com.wzb.service.impl.OrderServiceImpl;
 import com.wzb.utils.ConsoleTable;
 
 import java.util.List;
 
 public class HomeClass extends BaseClass {
+        private OrderService orderService = new OrderServiceImpl();
     public void show(){
         showProducts();
         println("welcome:"+currUser.getUsername());
@@ -41,6 +45,16 @@ public class HomeClass extends BaseClass {
     }
 
     private void buyProducts() {
+        //生成订单
+        boolean flag = true;
+        while (flag){
+            println(getString("product.input.id"));
+            String id = input.nextLine();
+            println(getString("product.input.shoppingNum"));
+            String shoppingNum = input.nextLine();
+            OrderItem orderItem = new OrderItem();
+            orderItem.setShoppingNum(Integer.parseInt(shoppingNum));
+        }
     }
 
     private void findOrderById() {
