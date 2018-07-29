@@ -1,16 +1,21 @@
 package com.wzb.ui;
 
 import com.wzb.bean.Clothes;
+import com.wzb.bean.Order;
 import com.wzb.bean.OrderItem;
 import com.wzb.service.ClothesService;
 import com.wzb.service.OrderService;
 import com.wzb.service.impl.ClothesServiceImpl;
 import com.wzb.service.impl.OrderServiceImpl;
+import com.wzb.utils.BusinessException;
 import com.wzb.utils.ConsoleTable;
+import com.wzb.utils.DateUtils;
 
+import java.util.Date;
 import java.util.List;
 
 public class HomeClass extends BaseClass {
+        private ClothesService clothesService = new ClothesServiceImpl();
         private OrderService orderService = new OrderServiceImpl();
     public void show(){
         showProducts();
@@ -30,9 +35,14 @@ public class HomeClass extends BaseClass {
                     flag=false;
                     break;
                 case "3"://3、购买
-                    buyProducts();
-                    flag=false;
+                    try {
+                        buyProducts();
+                        flag=false;
+                    }catch (BusinessException e){
+                            println(e.getMessage());
+                    }
                     break;
+
                 case "0"://0、退出
                     flag=false;
                     System.exit(0);
@@ -44,17 +54,46 @@ public class HomeClass extends BaseClass {
         }
     }
 
-    private void buyProducts() {
+    private void buyProducts() throws BusinessException {
         //生成订单
         boolean flag = true;
+        int count = 1;
+        float sum = 0.0f;//订单总金额
+        Order order = new Order();
         while (flag){
             println(getString("product.input.id"));
             String id = input.nextLine();
             println(getString("product.input.shoppingNum"));
-            String shoppingNum = input.nextLine();
+            String shoppingNum =input.nextLine();
             OrderItem orderItem = new OrderItem();
-            orderItem.setShoppingNum(Integer.parseInt(shoppingNum));
+            Clothes clothes = clothesService.findById(id);
+            int num = Integer.parseInt(shoppingNum);
+            if(num>clothes.getNum()){
+                throw new BusinessException("product.num.error");
+            }
+            //一条订单明细
+            orderItem.setClothes(clothes);
+            orderItem.setShoppingNum(num);
+            orderItem.setSum(clothes.getPrice()*num);
+            sum = sum + orderItem.getSum();
+            orderItem.setItemId(count++);
+            order.getOrderItemList().add(orderItem);
+            println(getString("product.buy.continue"));
+            String buy = input.nextLine();
+            switch (buy){
+                case "1":
+                    flag=true;
+                    break;
+                case "2":
+                    flag=false;
+                    break;
+            }
         }
+        order.setCreateDate(DateUtils.toDate(new Date()));
+        order.setUserId(currUser.getId());
+        order.setSum(sum);
+        order.setOrderId(orderService.list().size()+1);
+        orderService.buyProduct(order);
     }
 
     private void findOrderById() {
@@ -64,7 +103,6 @@ public class HomeClass extends BaseClass {
     }
 
     public void showProducts(){
-        ClothesService clothesService = new ClothesServiceImpl();
         List<Clothes> list = clothesService.list();
         ConsoleTable t = new ConsoleTable(8, true);
         t.appendRow();
